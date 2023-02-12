@@ -38,10 +38,11 @@ def start(message):
 
 
 @bot.message_handler(func=lambda message: True)
-def respond(message):
-    context = generate_response.delay(message).get()
-    print(context)
-    bot.reply_to(message, context)
+def echo_message(message):
+    task = generate_response.apply_async(args=[message.text])
+    response = task.get()
+    bot.reply_to(message, response)
 
 
-bot.infinity_polling()
+if __name__ == "__main__":
+    bot.polling()
