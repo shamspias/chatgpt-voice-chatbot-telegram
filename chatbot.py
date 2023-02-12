@@ -9,7 +9,7 @@ load_dotenv()
 
 openai.api_key = os.getenv('OPEN_AI_KEY')
 
-app = Celery('chatbot', os.getenv('CELERY_BROKER_URL'))
+app = Celery('chatbot', broker=os.getenv('CELERY_BROKER_URL'))
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
