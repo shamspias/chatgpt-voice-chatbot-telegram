@@ -42,4 +42,4 @@ def respond(message):
     generate_response.apply_async((message.text,), callback=lambda response: bot.reply_to(message, response))
 
 
-bot.polling()
+bot.infinity_polling()
