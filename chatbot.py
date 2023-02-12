@@ -40,11 +40,16 @@ def start(message):
 conversations = []
 
 
+def get_conversation():
+    return conversations
+
+
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    conversations.append((message.text, time.time()))
-    conversations = [(text, timestamp) for text, timestamp in conversations if time.time() - timestamp < 600]
-    task = generate_response.apply_async(args=[message.text, conversations])
+    conv = get_conversation()
+    conv.append((message.text, time.time()))
+    conv = [(text, timestamp) for text, timestamp in conv if time.time() - timestamp < 600]
+    task = generate_response.apply_async(args=[message.text, conv])
     response = task.get()
     bot.reply_to(message, response)
 
