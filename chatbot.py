@@ -1,5 +1,5 @@
 import os
-
+import time
 import openai
 from dotenv import load_dotenv
 import telebot
@@ -37,9 +37,14 @@ def start(message):
     bot.reply_to(message, "Hello! How can I help you today?")
 
 
+conversations = []
+
+
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    task = generate_response.apply_async(args=[message.text])
+    conversations.append((message.text, time.time()))
+    conversations = [(text, timestamp) for text, timestamp in conversations if time.time() - timestamp < 600]
+    task = generate_response.apply_async(args=[message.text, conversations])
     response = task.get()
     bot.reply_to(message, response)
 
