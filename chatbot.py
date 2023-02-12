@@ -17,6 +17,17 @@ bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
 
 @app.task
+def generate_image(prompt, number=1):
+    response = openai.Image.create(
+        prompt=prompt,
+        n=number,
+        size="512x512"
+    )
+    image_url = response['data'][0]['url']
+    return image_url
+
+
+@app.task
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -35,6 +46,17 @@ def generate_response(message_text):
 @bot.message_handler(commands=["start"])
 def start(message):
     bot.reply_to(message, "Hello! How can I help you today?")
+
+
+@bot.message_handler(commands=['image'])
+def handle_image(message):
+    prompt = message.text.replace("/image", "").strip()
+    task = generate_image.apply_async(args=[prompt])
+    image_url = task.get()
+    if image_url is not None:
+        bot.send_photo(chat_id=message.chat.id, photo=image_url)
+    else:
+        bot.reply_to(message, "Could not generate image, try again later.")
 
 
 conversations = []
