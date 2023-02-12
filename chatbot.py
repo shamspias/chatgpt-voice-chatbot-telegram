@@ -15,8 +15,6 @@ telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
 redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
 app = celery.Celery('telegram_chatbot', broker=os.getenv('CELERY_BROKER_URL'))
-celery.conf.update(result_backend=os.getenv('CELERY_RESULT_BACKEND'), task_serializer='json', result_serializer='json',
-                   accept_content=['json'])
 
 
 @app.task
