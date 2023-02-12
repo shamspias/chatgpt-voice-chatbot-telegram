@@ -1,62 +1,45 @@
 import os
-from dotenv import load_dotenv
+
 import openai
-import requests
-import json
-import redis
-import celery
+from dotenv import load_dotenv
+import telebot
+from celery import Celery
 
 load_dotenv()
 
-openai.api_key = os.getenv("OPEN_AI_KEY")
+openai.api_key = os.getenv('OPEN_AI_KEY')
 
-telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+app = Celery('chatbot', os.getenv('CELERY_BROKER_URL'))
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
-app = celery.Celery('chatbot', broker=os.getenv('CELERY_BROKER_URL'))
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
 
 @app.task
-def process_message(chat_id, message):
+def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt="You are an AI named Sonic and you are in a conversation with a human. You can answer questions, "
-               "provide information, and help with a wide variety of tasks.\n\n" + message,
+               "provide information, and help with a wide variety of tasks.\n\n" + message_text,
         temperature=0.7,
         max_tokens=256,
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0
     ).choices[0].text
-    send_message(chat_id, response)
+
+    return response.replace("ChatBot: ", "")
 
 
-def send_message(chat_id, message):
-    url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
-    data = {"chat_id": chat_id, "text": message}
-    requests.post(url, json=data)
+@bot.message_handler(commands=["start"])
+def start(message):
+    bot.reply_to(message, "Hello! How can I help you today?")
 
 
-def handle_update(update):
-    chat_id = update["message"]["chat"]["id"]
-    message = update["message"]["text"]
-
-    # Remember the last 10 conversations
-    redis_client.lpush(f"conversations:{chat_id}", message)
-    redis_client.ltrim(f"conversations:{chat_id}", 0, 9)
-
-    # Schedule the message processing task
-    process_message.delay(chat_id, message)
+@bot.message_handler(func=lambda message: True)
+def respond(message):
+    generate_response.apply_async((message.text,), callback=lambda response: bot.reply_to(message, response))
 
 
-def get_updates():
-    url = f"https://api.telegram.org/bot{telegram_bot_token}/getUpdates"
-    response = requests.get(url)
-    return response.json()["result"]
-
-
-if __name__ == "__main__":
-    updates = get_updates()
-    for update in updates:
-        handle_update(update)
+bot.polling()
