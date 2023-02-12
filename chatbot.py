@@ -31,7 +31,7 @@ def generate_image(prompt, number=1):
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt="You are an AI named Sonic and you are in a conversation with a human. You can answer questions, "
+        prompt="You are an AI named Floki and you are in a conversation with a human. You can answer questions, "
                "provide information, and help with a wide variety of tasks.\n\n" + message_text,
         temperature=0.7,
         max_tokens=256,
@@ -43,15 +43,15 @@ def generate_response(message_text):
     return response["choices"][0]["text"].strip()
 
 
-@bot.message_handler(commands=["start"])
+@bot.message_handler(commands=["start", "help"])
 def start(message):
-    bot.reply_to(message, "Hello! How can I help you today?")
+    bot.reply_to(message, "Ask anything to the AI Floki\n1. /ask any question in chat\n2. Use /create to generate a image\n3. Use /music to get a list of songs based on genre or name")
 
 
-@bot.message_handler(commands=['image'])
+@bot.message_handler(commands=['create'])
 def handle_image(message):
     number = message.text[6:9]
-    prompt = message.text.replace("/image", "").strip()
+    prompt = message.text.replace("/create", "").strip()
     try:
         numbers = int(number)
     except Exception as e:
