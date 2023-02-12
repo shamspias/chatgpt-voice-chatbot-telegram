@@ -50,7 +50,7 @@ def start(message):
 
 @bot.message_handler(commands=["create"])
 def handle_image(message):
-    number = message.text[6:9]
+    number = message.text[7:10]
     prompt = message.text.replace("/create", "").strip()
     try:
         numbers = int(number)
