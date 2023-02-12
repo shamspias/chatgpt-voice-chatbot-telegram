@@ -3,4 +3,4 @@ openai
 gunicorn
 celery
 redis
-requests
+pyTelegramBotAPI
