@@ -23,7 +23,7 @@ def generate_image(prompt, number=1):
         n=number,
         size="512x512"
     )
-    image_url = response['data'][0]['url']
+    image_url = response['data']
     return image_url
 
 
@@ -38,9 +38,9 @@ def generate_response(message_text):
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0
-    ).choices[0].text
+    )
 
-    return response.replace("ChatBot: ", "")
+    return response["choices"][0]["text"].strip()
 
 
 @bot.message_handler(commands=["start"])
@@ -50,7 +50,6 @@ def start(message):
 
 @bot.message_handler(commands=['image'])
 def handle_image(message):
-    print(message.text)
     number = message.text[6:9]
     prompt = message.text.replace("/image", "").strip()
     try:
@@ -60,10 +59,11 @@ def handle_image(message):
         numbers = 1
     task = generate_image.apply_async(args=[prompt, numbers])
     image_url = task.get()
-    if image_url is not None:
-        bot.send_photo(chat_id=message.chat.id, photo=image_url)
-    else:
-        bot.reply_to(message, "Could not generate image, try again later.")
+    for img in image_url:
+        if image_url is not None:
+            bot.send_photo(chat_id=message.chat.id, photo=img['url'])
+        else:
+            bot.reply_to(message, "Could not generate image, try again later.")
 
 
 conversations = []
