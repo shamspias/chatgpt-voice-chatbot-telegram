@@ -40,6 +40,7 @@ def start(message):
 @bot.message_handler(func=lambda message: True)
 def respond(message):
     context = generate_response.delay(message).get()
+    print(context)
     bot.reply_to(message, context)
 
 
