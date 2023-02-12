@@ -22,12 +22,14 @@ celery.conf.update(result_backend=os.getenv('CELERY_RESULT_BACKEND'), task_seria
 @app.task
 def process_message(chat_id, message):
     response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=message,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.5,
+        model="text-davinci-003",
+        prompt="You are an AI named Sonic and you are in a conversation with a human. You can answer questions, "
+               "provide information, and help with a wide variety of tasks.\n\n" + message,
+        temperature=0.7,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
     ).choices[0].text
     send_message(chat_id, response)
 
