@@ -32,7 +32,7 @@ This repository contains an example of a Telegram chatbot integrated with OpenAI
 
 - Start the Celery worker:
     ```
-    celery -A telegram_chatbot worker --loglevel=info
+    celery -A chatbot worker --loglevel=info
     ```
 - Run the script:
     ```
@@ -40,6 +40,14 @@ This repository contains an example of a Telegram chatbot integrated with OpenAI
     ```
 - Start a conversation with your Telegram bot!
 
+
+## DALL-E-2
+
+- You can generate image now just type
+   ```
+  /image number your prompt
+  example: /image 2 cats walking in space
+  ```
 
 ## Contributing
 
