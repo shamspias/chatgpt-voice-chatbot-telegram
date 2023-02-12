@@ -1,5 +1,5 @@
 import os
-import time
+
 import openai
 from dotenv import load_dotenv
 import telebot
@@ -40,16 +40,11 @@ def start(message):
 conversations = []
 
 
-def get_conversation():
-    return conversations
-
-
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    conv = get_conversation()
-    conv.append((message.text, time.time()))
-    conv = [(text, timestamp) for text, timestamp in conv if time.time() - timestamp < 600]
-    task = generate_response.apply_async(args=[message.text, conv])
+    # conversations.append(message.text)
+    # conversations = conversations[-10:]  # Keep only the last 10 items
+    task = generate_response.apply_async(args=[message.text])
     response = task.get()
     bot.reply_to(message, response)
 
