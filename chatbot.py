@@ -21,7 +21,7 @@ def generate_image(prompt, number=1):
     response = openai.Image.create(
         prompt=prompt,
         n=number,
-        size="512x512"
+        size="1024x1024"
     )
     image_url = response['data']
     return image_url
@@ -45,10 +45,10 @@ def generate_response(message_text):
 
 @bot.message_handler(commands=["start", "help"])
 def start(message):
-    bot.reply_to(message, "Ask anything to the AI Floki\n1. /ask any question in chat\n2. Use /create to generate a image\n3. Use /music to get a list of songs based on genre or name")
+    bot.reply_to(message, "Ask anything to the AI Floki\n1./ask or just write any question in chat\n2. Use /create (number) to generate image\nexample: /create 2 dance with cat")
 
 
-@bot.message_handler(commands=['create'])
+@bot.message_handler(commands=["create"])
 def handle_image(message):
     number = message.text[6:9]
     prompt = message.text.replace("/create", "").strip()
