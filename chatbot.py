@@ -51,7 +51,13 @@ def start(message):
 @bot.message_handler(commands=['image'])
 def handle_image(message):
     prompt = message.text.replace("/image", "").strip()
-    task = generate_image.apply_async(args=[prompt])
+    number = message.text[6:7]
+    try:
+        numbers = int(number)
+    except Exception as e:
+        print(str(e))
+        numbers = 1
+    task = generate_image.apply_async(args=[prompt, numbers])
     image_url = task.get()
     if image_url is not None:
         bot.send_photo(chat_id=message.chat.id, photo=image_url)
