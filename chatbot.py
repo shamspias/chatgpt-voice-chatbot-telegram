@@ -50,8 +50,8 @@ def start(message):
 
 @bot.message_handler(commands=['image'])
 def handle_image(message):
-    prompt = message.text.replace("/image", "").strip()
     number = message.text[6:7]
+    prompt = message.text.replace("/image", "").strip()
     try:
         numbers = int(number)
     except Exception as e:
