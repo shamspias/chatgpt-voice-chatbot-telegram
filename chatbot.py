@@ -51,7 +51,7 @@ def start(message):
 @bot.message_handler(commands=['image'])
 def handle_image(message):
     print(message.text)
-    number = message.text[6:7]
+    number = message.text[6:9]
     prompt = message.text.replace("/image", "").strip()
     try:
         numbers = int(number)
