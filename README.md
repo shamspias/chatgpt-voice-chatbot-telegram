@@ -12,12 +12,12 @@ This repository contains an example of a Telegram chatbot integrated with OpenAI
 
 - Clone the repository:
    ```
-  $ git clone https://github.com/shamspias/telegram-chatbot-gpt3-celery.git
+  git clone https://github.com/shamspias/telegram-chatbot-gpt3-celery.git
   ```
 - Create a virtual environment and activate it:
     ```
-    $ python3 -m venv env
-    $ source env/bin/activate
+    python3 -m venv env
+    source env/bin/activate
     ```
 - Install the dependencies:
     ```
