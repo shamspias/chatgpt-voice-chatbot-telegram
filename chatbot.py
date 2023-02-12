@@ -39,7 +39,8 @@ def start(message):
 
 @bot.message_handler(func=lambda message: True)
 def respond(message):
-    generate_response.apply_async((message.text,), callback=lambda response: bot.reply_to(message, response))
+    context = generate_response.delay(message).get()
+    bot.reply_to(message, context)
 
 
 bot.infinity_polling()
