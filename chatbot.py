@@ -31,7 +31,7 @@ def generate_image(prompt, number=1):
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt="You are an AI named Floki and you are in a conversation with a human. You can answer questions, "
+        prompt="You are an AI named Chat Buddy and you are in a conversation with a human. You can answer questions, "
                "provide information, and help with a wide variety of tasks.\n\n" + message_text,
         temperature=0.7,
         max_tokens=256,
@@ -45,7 +45,7 @@ def generate_response(message_text):
 
 @bot.message_handler(commands=["start", "help"])
 def start(message):
-    bot.reply_to(message, "Ask anything to the AI Floki\n1./ask or just write any question in chat\n2. Use /create (number) to generate image\nexample: /create 2 dance with cat")
+    bot.reply_to(message, "Ask anything to the Chat Buddy\n1./ask or just write any question in chat\n2. Use /create (number) to generate image\nexample: /create 2 dance with cat")
 
 
 @bot.message_handler(commands=["create"])
