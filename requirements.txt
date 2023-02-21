@@ -4,3 +4,5 @@ gunicorn
 celery
 redis
 pyTelegramBotAPI
+Pillow
+replicate
