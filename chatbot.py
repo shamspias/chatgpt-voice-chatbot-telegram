@@ -116,25 +116,45 @@ def generate_response(message_text):
 @bot.message_handler(commands=["start", "help"])
 def start(message):
     bot.reply_to(message,
-                 "Ask anything to the Chat Buddy\n1./ask or just write any question in chat\n2. Use /create (number) to generate image\nexample: /create 2 dance with cat")
+                 "Ask anything to the Chat Buddy\n1./ask or just write any question in chat\n2. Use /create (number) "
+                 "to generate image\nexample: /create 2 dance with cat\n3. /image to generate image")
 
 
-@bot.message_handler(commands=["create"])
+@bot.message_handler(commands=["create", "image"])
 def handle_image(message):
-    number = message.text[7:10]
-    prompt = message.text.replace("/create", "").strip()
-    try:
-        numbers = int(number)
-    except Exception as e:
-        print(str(e))
-        numbers = 1
-    task = generate_image.apply_async(args=[prompt, numbers])
-    image_url = task.get()
-    for img in image_url:
+    space_markup = '                                                                                  '
+    image_footer = '[Website](https://gpt3bots.com)'
+    caption = f"Powered by **[Chat Buddy](https://t.me/Chatbuddyofficialbot)" + space_markup + image_footer
+
+    if message.text.startswith("/image"):
+        prompt = message.text.replace("/image", "").strip()
+        task = generate_image_replicate.apply_async(args=[prompt])
+        image_url = task.get()
+
         if image_url is not None:
-            bot.send_photo(chat_id=message.chat.id, photo=img['url'])
+            img_response = requests.get(image_url)
+            img_bytes = image_watermark(img_response)
+
+            bot.send_photo(chat_id=message.chat.id, photo=img_bytes, reply_to_message_id=message.message_id,
+                           caption=caption, parse_mode='Markdown')
         else:
             bot.reply_to(message, "Could not generate image, try again later.")
+    else:
+        number = message.text[7:10]
+        prompt = message.text.replace("/create", "").strip()
+        try:
+            numbers = int(number)
+        except Exception as e:
+            print(str(e))
+            numbers = 1
+        task = generate_image.apply_async(args=[prompt, numbers])
+        image_url = task.get()
+        for img in image_url:
+            if img['url'] is not None:
+                bot.send_photo(chat_id=message.chat.id, photo=img['url'], reply_to_message_id=message.message_id,
+                               caption=caption, parse_mode='Markdown')
+            else:
+                bot.reply_to(message, "Could not generate image, try again later.")
 
 
 conversations = []
