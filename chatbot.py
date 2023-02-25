@@ -91,7 +91,7 @@ def generate_image(prompt, number=1):
     response = openai.Image.create(
         prompt=prompt,
         n=number,
-        size="1024x1024"
+        size="512x512"
     )
     image_url = response['data']
     return image_url
@@ -117,7 +117,8 @@ def generate_response(message_text):
 def start(message):
     bot.reply_to(message,
                  "Ask anything to the Chat Buddy\n1./ask or just write any question in chat\n2. Use /create (number) "
-                 "to generate image\nexample: /create 2 dance with cat\n3. /image to generate image")
+                 "to generate image\nexample: /create 2 dance with cat\n3./image to generate image with anime "
+                 "style\nexample: /image portrait of female elf, intricate, elegant, highly detailed, digital painting")
 
 
 @bot.message_handler(commands=["create", "image"])
