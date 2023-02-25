@@ -134,7 +134,8 @@ def handle_image(message):
 
         if image_url is not None:
             img_response = requests.get(image_url)
-            img_bytes = image_watermark(img_response)
+            img_bytes = img_response
+            # img_bytes = image_watermark(img_response)
 
             bot.send_photo(chat_id=message.chat.id, photo=img_bytes, reply_to_message_id=message.message_id,
                            caption=caption, parse_mode='Markdown')
