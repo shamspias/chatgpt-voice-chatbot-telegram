@@ -68,7 +68,7 @@ conversations = []
 
 
 @bot.message_handler(commands=["Code", "code"])
-def start(message):
+def code_handler(message):
     task = generate_code_response.apply_async(args=[message.text])
     response = task.get()
     bot.reply_to(message, response)
