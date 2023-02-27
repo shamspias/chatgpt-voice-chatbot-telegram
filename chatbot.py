@@ -27,6 +27,21 @@ def generate_image(prompt, number=1):
 
 
 @app.task
+def generate_code_response(message_text):
+    response = openai.Completion.create(
+        model="code-davinci-002",
+        prompt=message_text,
+        temperature=0,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+
+    return response["choices"][0]["text"].strip()
+
+
+@app.task
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -50,6 +65,13 @@ def start(message):
 
 
 conversations = []
+
+
+@bot.message_handler(commands=["Code", "code"])
+def start(message):
+    task = generate_code_response.apply_async(args=[message.text])
+    response = task.get()
+    bot.reply_to(message, response)
 
 
 @bot.message_handler(func=lambda message: True)
