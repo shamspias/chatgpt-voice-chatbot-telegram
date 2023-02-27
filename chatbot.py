@@ -30,7 +30,7 @@ def generate_image(prompt, number=1):
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt="You are an AI named Chat Buddy and you are in a conversation with a human. You can answer questions, "
+        prompt="You are an AI named Genos and you are in a conversation with a human. You can answer questions, "
                "provide information, and help with a wide variety of tasks.You are good at writing clean and standard "
                "code.\n\n" + message_text,
         temperature=0.7,
