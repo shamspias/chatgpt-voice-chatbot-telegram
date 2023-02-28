@@ -63,8 +63,11 @@ def generate_response(message_text):
 
 @bot.message_handler(commands=["start", "help"])
 def start(message):
-    bot.reply_to(message,
-                 "Welcome, what would you like to do?\n1.Chat or\n2.Write some code")
+    if message.startswith("/help"):
+        bot.reply_to(message, "to write good gode you can use /code\nexample:\n/code # Create a Python dictionary of "
+                              "6 countries and their capitals")
+    else:
+        bot.reply_to(message, "Welcome, what would you like to do?\n1.Chat or ask anything\n2./code to write some code")
 
 
 @bot.message_handler(commands=["Code", "code"])
