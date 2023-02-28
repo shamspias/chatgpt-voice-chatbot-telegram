@@ -46,6 +46,7 @@ def generate_code_response(message_text):
 
 @app.task
 def generate_response(message_text, user_id):
+    user_id = user_id
     conversation_history = ""
     user_messages = conversations.get(user_id, {}).get('conversations', [])
     bot_responses = conversations.get(user_id, {}).get('responses', [])
