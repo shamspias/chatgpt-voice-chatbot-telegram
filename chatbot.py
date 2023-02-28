@@ -75,10 +75,11 @@ def code_handler(message):
     my_text = message.text.lower()
     prompt = my_text.replace("/code", "").strip()
     if prompt == "":
-        prompt = "# Create a python dictionary of 1 countries and their capitals"
-    task = generate_code_response.apply_async(args=[prompt])
-    response = task.get()
-    bot.reply_to(message, response)
+        bot.reply_to(message, "Please give comment like # Create a function to count to 100\n to write code")
+    else:
+        task = generate_code_response.apply_async(args=[prompt])
+        response = task.get()
+        bot.reply_to(message, response)
 
 
 @bot.message_handler(func=lambda message: True)
