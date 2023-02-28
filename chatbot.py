@@ -95,7 +95,10 @@ def echo_message(message):
     # Construct the full conversation history in the "human: bot: " format
     conversation_history = ""
     for i in range(min(len(user_messages), len(user_responses))):
-        conversation_history += f"human: {user_messages[i]}\nbot: {user_responses[i]}\n"
+        conversation_history += f"human: {user_messages[i]}\ngenos: {user_responses[i]}\n"
+
+    if conversation_history == "":
+        conversation_history = "human:{}\ngenos:".format(message.text)
 
     # Test
     print(conversation_history)
