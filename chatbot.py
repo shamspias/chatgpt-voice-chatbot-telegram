@@ -45,7 +45,15 @@ def generate_code_response(message_text):
 
 
 @app.task
-def generate_response(message_text):
+def generate_response(message_text, user_id):
+    conversation_history = ""
+    user_messages = conversations.get(user_id, {}).get('conversations', [])
+    bot_responses = conversations.get(user_id, {}).get('responses', [])
+
+    # Construct the conversation history in the "human: bot: " format
+    for i in range(min(len(user_messages), len(bot_responses))):
+        conversation_history += f"human: {user_messages[i]}\ngenos: {bot_responses[i]}\n"
+
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt="You are an AI named Genos and you are in a conversation with a human. You can answer questions," \
@@ -92,16 +100,8 @@ def echo_message(message):
     # Store the updated conversations and responses for this user
     conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
 
-    # Construct the full conversation history in the "human: bot: " format
-    conversation_history = ""
-    for i in range(min(len(user_messages), len(user_responses))):
-        conversation_history += f"human: {user_messages[i]}\nbot: {user_responses[i]}\n"
-
-    # Test Conversation history
-    print(conversation_history)
-
     # Generate response
-    task = generate_response.apply_async(args=[message.text])
+    task = generate_response.apply_async(args=[message.text, user_id])
     response = task.get()
 
     # Add the response to the user's responses
