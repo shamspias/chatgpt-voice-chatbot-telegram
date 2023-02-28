@@ -64,11 +64,10 @@ def generate_response(message_text):
 @bot.message_handler(commands=["start", "help"])
 def start(message):
     if message.text.startswith("/help"):
-        bot.reply_to(message, "to write good code you can use /code\nexample:\n/code # Create a Python dictionary of "
-                              "6 countries and their capitals\nto clear old conversation use /clear")
+        bot.reply_to(message, "/code - Helps you to write code, for example: \n/code # Create a python dictionary of 6 "
+                              "countries and their capitals\n/clear - Clears old conversations")
     else:
-        bot.reply_to(message, "Welcome, what would you like to do?\n1.Chat or ask anything\n2./code to write some "
-                              "code\n3./clear to clear old conversations")
+        bot.reply_to(message, "Just start chatting to the AI or enter /help for other commands")
 
 
 @bot.message_handler(commands=["Code", "code"])
