@@ -89,11 +89,16 @@ def echo_message(message):
     user_messages = user_conversations['conversations'][-9:] + [message.text]
     user_responses = user_conversations['responses'][-9:]
 
-    # Test Conversation and response
-    print(user_conversations)
-    print("--------Conversation end----------------")
-    print(user_messages)
-    print(user_responses)
+    # Store the updated conversations and responses for this user
+    conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
+
+    # Construct the full conversation history in the "human: bot: " format
+    conversation_history = ""
+    for i in range(min(len(user_messages), len(user_responses))):
+        conversation_history += f"human: {user_messages[i]}\nbot: {user_responses[i]}\n"
+
+    # Test Conversation history
+    print(conversation_history)
 
     # Generate response
     task = generate_response.apply_async(args=[message.text])
