@@ -99,6 +99,8 @@ def echo_message(message):
 
     if conversation_history == "":
         conversation_history = "human:{}\ngenos:".format(message.text)
+    else:
+        conversation_history += "human:{}\ngenos:".format(message.text)
 
     # Test
     print(conversation_history)
