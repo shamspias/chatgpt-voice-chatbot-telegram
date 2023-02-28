@@ -86,7 +86,7 @@ def echo_message(message):
 
     # Get the last 10 conversations and responses for this user
     user_conversations = conversations.get(user_id, {'conversations': [], 'responses': []})
-    user_messages = user_conversations['conversations'][-9:] + [message.text]
+    user_messages = user_conversations['conversations'][-9:]
     user_responses = user_conversations['responses'][-9:]
 
     # Store the updated conversations and responses for this user
@@ -100,7 +100,7 @@ def echo_message(message):
     for i in range(min(len(user_messages), len(user_responses))):
         conversation_history += f"human: {user_messages[i]}\ngenos: {user_responses[i]}\n"
 
-    print(conversation_history)
+    print(conversation_history + "\nhuman:{}\ngenos:".format(message.text))
 
     # Generate response
     task = generate_response.apply_async(args=[conversation_history])
