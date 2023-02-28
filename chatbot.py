@@ -100,6 +100,8 @@ def echo_message(message):
     for i in range(min(len(user_messages), len(user_responses))):
         conversation_history += f"human: {user_messages[i]}\ngenos: {user_responses[i]}\n"
 
+    print(conversation_history)
+
     # Generate response
     task = generate_response.apply_async(args=[conversation_history])
     response = task.get()
