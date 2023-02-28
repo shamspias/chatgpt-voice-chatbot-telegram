@@ -59,7 +59,7 @@ def generate_response(message_text, user_id):
         model="text-davinci-003",
         prompt="You are an AI named Genos and you are in a conversation with a human. You can answer questions," \
                "provide information, and help with a wide variety of tasks.You are good at writing clean and standard " \
-               "code.\n\n" + message_text,
+               "code.\n\n" + conversation_history,
         temperature=0.7,
         max_tokens=256,
         top_p=1,
