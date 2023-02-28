@@ -72,7 +72,11 @@ def start(message):
 
 @bot.message_handler(commands=["Code", "code"])
 def code_handler(message):
-    task = generate_code_response.apply_async(args=[message.text])
+    my_text = message.text.lower()
+    prompt = my_text.replace("/code", "").strip()
+    if prompt == "":
+        prompt = "# Create a python dictionary of 1 countries and their capitals"
+    task = generate_code_response.apply_async(args=[prompt])
     response = task.get()
     bot.reply_to(message, response)
 
