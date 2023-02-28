@@ -80,21 +80,32 @@ def echo_message(message):
 
     # Handle /clear command
     if message.text == '/clear':
-        conversations[user_id] = []
-        bot.reply_to(message, "Conversations cleared!")
+        conversations[user_id] = {'conversations': [], 'responses': []}
+        bot.reply_to(message, "Conversations and responses cleared!")
         return
 
-    # Get the last 10 conversations for this user
-    user_conversations = conversations.get(user_id, [])[-10:]
+    # Get the last 10 conversations and responses for this user
+    user_conversations = conversations.get(user_id, {'conversations': [], 'responses': []})
+    user_messages = user_conversations['conversations'][-9:] + [message.text]
+    user_responses = user_conversations['responses'][-9:]
 
-    # Add the current message to the user's conversations
-    user_conversations.append(message.text)
+    # Test Conversation and response
+    print(user_conversations)
+    print("--------Conversation end----------------")
+    print(user_messages)
+    print(user_responses)
 
-    # Store the updated conversations for this user
-    conversations[user_id] = user_conversations
-    print(conversations[user_id])
+    # Generate response
     task = generate_response.apply_async(args=[message.text])
     response = task.get()
+
+    # Add the response to the user's responses
+    user_responses.append(response)
+
+    # Store the updated conversations and responses for this user
+    conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
+
+    # Reply to message
     bot.reply_to(message, response)
 
 
