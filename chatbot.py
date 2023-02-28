@@ -14,6 +14,9 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
+# Store the last 10 conversations for each user
+conversations = {}
+
 
 @app.task
 def generate_image(prompt, number=1):
@@ -64,9 +67,6 @@ def start(message):
                  "Welcome, what would you like to do?\n1.Chat or\n2.Write some code")
 
 
-conversations = []
-
-
 @bot.message_handler(commands=["Code", "code"])
 def code_handler(message):
     task = generate_code_response.apply_async(args=[message.text])
@@ -76,9 +76,23 @@ def code_handler(message):
 
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    # conversations.append(message.text)
-    # conversations = conversations[-10:]  # Keep only the last 10 items
-    task = generate_response.apply_async(args=[message.text])
+    user_id = message.chat.id
+
+    # Handle /clear command
+    if message.text == '/clear':
+        conversations[user_id] = []
+        bot.reply_to(message, "Conversations cleared!")
+        return
+
+    # Get the last 10 conversations for this user
+    user_conversations = conversations.get(user_id, [])[-10:]
+
+    # Add the current message to the user's conversations
+    user_conversations.append(message.text)
+
+    # Store the updated conversations for this user
+    conversations[user_id] = user_conversations
+    task = generate_response.apply_async(args=[conversations[user_id]])
     response = task.get()
     bot.reply_to(message, response)
 
