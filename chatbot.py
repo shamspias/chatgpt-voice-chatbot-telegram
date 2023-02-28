@@ -86,20 +86,19 @@ def echo_message(message):
 
     # Get the last 10 conversations and responses for this user
     user_conversations = conversations.get(user_id, {'conversations': [], 'responses': []})
-    user_messages = user_conversations['conversations'][-9:]
+    user_messages = user_conversations['conversations'][-9:] + message.text
     user_responses = user_conversations['responses'][-9:]
-
-    # Store the updated conversations and responses for this user
-    conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
 
     # Store the updated conversations and responses for this user
     conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
 
     # Construct the full conversation history in the "human: bot: " format
     conversation_history = ""
+    for i in range(min(len(user_messages), len(user_responses))):
+        conversation_history += f"human: {user_messages[i]}\nbot: {user_responses[i]}\n"
 
     # Test
-    print(conversation_history + "\nhuman:{}\ngenos:".format(message.text))
+    print(conversation_history)
     print("_________________")
     print(user_messages)
     print("-------user----mgs-----")
