@@ -102,13 +102,6 @@ def echo_message(message):
     else:
         conversation_history += "human:{}\ngenos:".format(message.text)
 
-    # Test
-    print(conversation_history)
-    print("_________________")
-    print(user_messages)
-    print("-------user----mgs-----")
-    print(user_responses)
-
     # Generate response
     task = generate_response.apply_async(args=[conversation_history])
     response = task.get()
