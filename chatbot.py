@@ -97,10 +97,13 @@ def echo_message(message):
 
     # Construct the full conversation history in the "human: bot: " format
     conversation_history = ""
-    for i in range(min(len(user_messages), len(user_responses))):
-        conversation_history += f"human: {user_messages[i]}\ngenos: {user_responses[i]}\n"
 
+    # Test
     print(conversation_history + "\nhuman:{}\ngenos:".format(message.text))
+    print("_________________")
+    print(user_messages)
+    print("-------user----mgs-----")
+    print(user_responses)
 
     # Generate response
     task = generate_response.apply_async(args=[conversation_history])
