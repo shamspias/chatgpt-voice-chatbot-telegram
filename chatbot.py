@@ -86,7 +86,7 @@ def echo_message(message):
 
     # Get the last 10 conversations and responses for this user
     user_conversations = conversations.get(user_id, {'conversations': [], 'responses': []})
-    user_messages = user_conversations['conversations'][-9:] + message.text
+    user_messages = user_conversations['conversations'][-9:] + [message.text]
     user_responses = user_conversations['responses'][-9:]
 
     # Store the updated conversations and responses for this user
