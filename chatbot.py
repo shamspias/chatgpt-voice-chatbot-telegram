@@ -75,7 +75,7 @@ def code_handler(message):
     my_text = message.text.lower()
     prompt = my_text.replace("/code", "").strip()
     if prompt == "":
-        bot.reply_to(message, "Please give comment like # Create a function to count to 100\n to write code")
+        bot.reply_to(message, "Please enter code or a question after the /code command")
     else:
         task = generate_code_response.apply_async(args=[prompt])
         response = task.get()
