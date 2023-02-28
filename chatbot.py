@@ -93,7 +93,7 @@ def echo_message(message):
     # Store the updated conversations for this user
     conversations[user_id] = user_conversations
     print(conversations[user_id])
-    task = generate_response.apply_async(args=[conversations[user_id]])
+    task = generate_response.apply_async(args=[message.text])
     response = task.get()
     bot.reply_to(message, response)
 
