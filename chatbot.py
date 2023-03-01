@@ -85,11 +85,11 @@ def handle_voice(message):
     print(file_info)
 
     # Save the file to disk
-    with open("voice_message.aiff", "wb") as f:
+    with open("voice_message.ogg", "wb") as f:
         f.write(file.content)
 
     # Use pydub to read in the audio file and convert it to WAV format
-    sound = AudioSegment.from_file("voice_message.aiff", format="aiff")
+    sound = AudioSegment.from_file("voice_message.ogg", format="ogg")
     sound.export("voice_message.wav", format="wav")
 
     # Use SpeechRecognition to transcribe the voice message
@@ -110,15 +110,15 @@ def handle_voice(message):
     sound.export("voice_message.ogg", format="ogg")
 
     # Send the transcribed text back to the user as a voice
-    voice = open("voice_message.ogg", "rb")
+    voice = open("voice_message_replay.ogg", "rb")
     bot.send_voice(message.chat.id, voice)
     voice.close()
 
     # Delete the temporary files
-    os.remove("voice_message.aiff")
+    os.remove("voice_message.ogg")
     os.remove("voice_message.wav")
     os.remove("voice_message.mp3")
-    os.remove("voice_message.ogg")
+    os.remove("voice_message_replay.ogg")
 
 
 @bot.message_handler(commands=["Code", "code"])
