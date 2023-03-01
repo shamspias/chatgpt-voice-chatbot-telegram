@@ -6,3 +6,12 @@
 - Redis
 - OpenAI API Key
 - Telegram Bot Token
+- ffmpeg
+
+## Deployment
+
+## Install requirements
+- Install Python3-venv curl redis-server supervisor and FFMPEG
+    ```
+    sudo apt install python3-venv curl redis-server supervisor ffmpeg -y
+    ```
