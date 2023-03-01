@@ -150,7 +150,7 @@ def handle_voice(message):
 
     # Use pydub to convert the MP3 file to the OGG format
     sound = AudioSegment.from_mp3("voice_message.mp3")
-    sound.export("voice_message_replay.ogg", format="ogg")
+    sound.export("voice_message_replay.ogg", format="mp3")
 
     # Send the transcribed text back to the user as a voice
     voice = open("voice_message_replay.ogg", "rb")
