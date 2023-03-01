@@ -139,11 +139,9 @@ def handle_voice(message):
     replay_text = conversation_tracking(text, user_id)
 
     # Send the question text back to the user
-    text = "Human: " + text
-    bot.reply_to(message, text)
-
     # Send the transcribed text back to the user
-    new_replay_text = "Genos: " + replay_text
+    new_replay_text = "Human: " + text + "\n" + "Genos: " + replay_text
+
     bot.reply_to(message, new_replay_text)
 
     # Use Google Text-to-Speech to convert the text to speech
