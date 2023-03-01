@@ -7,3 +7,5 @@ pyTelegramBotAPI
 Pillow
 replicate
 SpeechRecognition
+gTTS
+pydub
