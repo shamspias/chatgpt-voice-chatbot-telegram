@@ -3,7 +3,8 @@ import openai
 from dotenv import load_dotenv
 import telebot
 import requests
-
+from gtts import gTTS
+from pydub import AudioSegment
 from celery import Celery
 import speech_recognition as sr
 
@@ -84,20 +85,40 @@ def handle_voice(message):
     print(file_info)
 
     # Save the file to disk
-    with open("voice_message.ogg", "wb") as f:
+    with open("voice_message.aiff", "wb") as f:
         f.write(file.content)
 
-    print(file.content)
-    print("_____________________END____________")
+    # Use pydub to read in the audio file and convert it to WAV format
+    sound = AudioSegment.from_file("voice_message.aiff", format="aiff")
+    sound.export("voice_message.wav", format="wav")
 
     # Use SpeechRecognition to transcribe the voice message
     r = sr.Recognizer()
-    with sr.AudioFile("voice_message.ogg") as source:
+    with sr.AudioFile("voice_message.wav") as source:
         audio_data = r.record(source)
         text = r.recognize_google(audio_data)
 
     # Send the transcribed text back to the user
     bot.reply_to(message, text)
+
+    # Use Google Text-to-Speech to convert the text to speech
+    tts = gTTS(text)
+    tts.save("voice_message.mp3")
+
+    # Use pydub to convert the MP3 file to the OGG format
+    sound = AudioSegment.from_mp3("voice_message.mp3")
+    sound.export("voice_message.ogg", format="ogg")
+
+    # Send the transcribed text back to the user as a voice
+    voice = open("voice_message.ogg", "rb")
+    bot.send_voice(message.chat.id, voice)
+    voice.close()
+
+    # Delete the temporary files
+    os.remove("voice_message.aiff")
+    os.remove("voice_message.wav")
+    os.remove("voice_message.mp3")
+    os.remove("voice_message.ogg")
 
 
 @bot.message_handler(commands=["Code", "code"])
