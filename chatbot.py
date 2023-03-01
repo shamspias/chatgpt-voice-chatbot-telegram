@@ -98,11 +98,15 @@ def handle_voice(message):
         audio_data = r.record(source)
         text = r.recognize_google(audio_data)
 
+    # Generate response
+    task = generate_response.apply_async(args=[text])
+    replay_text = task.get()
+
     # Send the transcribed text back to the user
-    bot.reply_to(message, text)
+    bot.reply_to(message, replay_text)
 
     # Use Google Text-to-Speech to convert the text to speech
-    tts = gTTS(text)
+    tts = gTTS(replay_text)
     tts.save("voice_message.mp3")
 
     # Use pydub to convert the MP3 file to the OGG format
