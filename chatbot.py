@@ -121,8 +121,6 @@ def handle_voice(message):
     file = requests.get("https://api.telegram.org/file/bot{0}/{1}".format(
         TELEGRAM_BOT_TOKEN, file_info.file_path))
 
-    print(file_info)
-
     # Save the file to disk
     with open("voice_message.ogg", "wb") as f:
         f.write(file.content)
