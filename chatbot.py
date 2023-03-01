@@ -81,9 +81,13 @@ def handle_voice(message):
     file = requests.get("https://api.telegram.org/file/bot{0}/{1}".format(
         TELEGRAM_BOT_TOKEN, file_info.file_path))
 
+    print(file)
+
     # Save the file to disk
     with open("voice_message.ogg", "wb") as f:
         f.write(file.content)
+
+    print(file)
 
     # Use SpeechRecognition to transcribe the voice message
     r = sr.Recognizer()
