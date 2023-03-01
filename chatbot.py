@@ -2,7 +2,10 @@ import os
 import openai
 from dotenv import load_dotenv
 import telebot
+import requests
+
 from celery import Celery
+import speech_recognition as sr
 
 load_dotenv()
 
@@ -68,6 +71,28 @@ def start(message):
                               "countries and their capitals\n/clear - Clears old conversations")
     else:
         bot.reply_to(message, "Just start chatting to the AI or enter /help for other commands")
+
+
+# Define a function to handle voice messages
+@bot.message_handler(content_types=["voice"])
+def handle_voice(message):
+    # Download the voice message file from Telegram servers
+    file_info = bot.get_file(message.voice.file_id)
+    file = requests.get("https://api.telegram.org/file/bot{0}/{1}".format(
+        TELEGRAM_BOT_TOKEN, file_info.file_path))
+
+    # Save the file to disk
+    with open("voice_message.ogg", "wb") as f:
+        f.write(file.content)
+
+    # Use SpeechRecognition to transcribe the voice message
+    r = sr.Recognizer()
+    with sr.AudioFile("voice_message.ogg") as source:
+        audio_data = r.record(source)
+        text = r.recognize_google(audio_data)
+
+    # Send the transcribed text back to the user
+    bot.reply_to(message, text)
 
 
 @bot.message_handler(commands=["Code", "code"])
