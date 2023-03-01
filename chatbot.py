@@ -140,7 +140,7 @@ def handle_voice(message):
 
     # Send the question text back to the user
     # Send the transcribed text back to the user
-    new_replay_text = "Human: " + text + "\n" + "Genos: " + replay_text
+    new_replay_text = "Human: " + text + "\n\n" + "Genos: " + replay_text
 
     bot.reply_to(message, new_replay_text)
 
