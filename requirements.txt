@@ -6,3 +6,4 @@ redis
 pyTelegramBotAPI
 Pillow
 replicate
+SpeechRecognition
