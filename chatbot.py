@@ -65,6 +65,44 @@ def generate_response(message_text):
     return response["choices"][0]["text"].strip()
 
 
+def conversation_tracking(text_message, user_id):
+    """
+    Make remember all the coneversation
+    :param user_id: telegram user id
+    :param text_message: text message
+    :return: str
+    """
+    # Get the last 10 conversations and responses for this user
+    user_conversations = conversations.get(user_id, {'conversations': [], 'responses': []})
+    user_messages = user_conversations['conversations'][-9:] + [text_message]
+    user_responses = user_conversations['responses'][-9:]
+
+    # Store the updated conversations and responses for this user
+    conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
+
+    # Construct the full conversation history in the "human: bot: " format
+    conversation_history = ""
+    for i in range(min(len(user_messages), len(user_responses))):
+        conversation_history += f"human: {user_messages[i]}\ngenos: {user_responses[i]}\n"
+
+    if conversation_history == "":
+        conversation_history = "human:{}\ngenos:".format(text_message)
+    else:
+        conversation_history += "human:{}\ngenos:".format(text_message)
+
+    # Generate response
+    task = generate_response.apply_async(args=[conversation_history])
+    response = task.get()
+
+    # Add the response to the user's responses
+    user_responses.append(response)
+
+    # Store the updated conversations and responses for this user
+    conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
+
+    return response
+
+
 @bot.message_handler(commands=["start", "help"])
 def start(message):
     if message.text.startswith("/help"):
@@ -77,6 +115,7 @@ def start(message):
 # Define a function to handle voice messages
 @bot.message_handler(content_types=["voice"])
 def handle_voice(message):
+    user_id = message.chat.id
     # Download the voice message file from Telegram servers
     file_info = bot.get_file(message.voice.file_id)
     file = requests.get("https://api.telegram.org/file/bot{0}/{1}".format(
@@ -99,8 +138,7 @@ def handle_voice(message):
         text = r.recognize_google(audio_data)
 
     # Generate response
-    task = generate_response.apply_async(args=[text])
-    replay_text = task.get()
+    replay_text = conversation_tracking(message.text, user_id)
 
     # Send the transcribed text back to the user
     bot.reply_to(message, replay_text)
@@ -147,33 +185,7 @@ def echo_message(message):
         bot.reply_to(message, "Conversations and responses cleared!")
         return
 
-    # Get the last 10 conversations and responses for this user
-    user_conversations = conversations.get(user_id, {'conversations': [], 'responses': []})
-    user_messages = user_conversations['conversations'][-9:] + [message.text]
-    user_responses = user_conversations['responses'][-9:]
-
-    # Store the updated conversations and responses for this user
-    conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
-
-    # Construct the full conversation history in the "human: bot: " format
-    conversation_history = ""
-    for i in range(min(len(user_messages), len(user_responses))):
-        conversation_history += f"human: {user_messages[i]}\ngenos: {user_responses[i]}\n"
-
-    if conversation_history == "":
-        conversation_history = "human:{}\ngenos:".format(message.text)
-    else:
-        conversation_history += "human:{}\ngenos:".format(message.text)
-
-    # Generate response
-    task = generate_response.apply_async(args=[conversation_history])
-    response = task.get()
-
-    # Add the response to the user's responses
-    user_responses.append(response)
-
-    # Store the updated conversations and responses for this user
-    conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
+    response = conversation_tracking(message.text, user_id)
 
     # Reply to message
     bot.reply_to(message, response)
