@@ -138,7 +138,7 @@ def handle_voice(message):
         text = r.recognize_google(audio_data)
 
     # Generate response
-    replay_text = conversation_tracking(message.text, user_id)
+    replay_text = conversation_tracking(text, user_id)
 
     # Send the transcribed text back to the user
     bot.reply_to(message, replay_text)
