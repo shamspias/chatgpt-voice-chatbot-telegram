@@ -34,7 +34,8 @@ ChatGPT Voice Chatbot Telegram is a Python and Flask-based GitHub repository tha
 - Clone the repository to your local machine.
 - Install the required dependencies by running pip install -r requirements.txt.
 - Set up your OpenAI API credentials and update the .env file with the appropriate values.
-- Run the application with python app.py.
+- Create an virtual environment and install all requirments and active the environment
+
 
 ### Install requirements
 - Install Python3-venv curl redis-server supervisor and FFMPEG
@@ -42,6 +43,10 @@ ChatGPT Voice Chatbot Telegram is a Python and Flask-based GitHub repository tha
     sudo apt install python3-venv curl redis-server supervisor ffmpeg -y
     ```
     
+### RUN
+
+- Active virtualenv then run celery `celery -A chatbotworker --loglevel=info`
+- Run the application with python `chatbot.py`
     
 ## Usage
 - Start a conversation with the chatbot by messaging the Telegram bot.
