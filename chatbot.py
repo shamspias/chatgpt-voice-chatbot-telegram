@@ -52,7 +52,7 @@ def generate_code_response(message_text):
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt="You are an AI named Genos and you are in a conversation with a human. You can answer questions," \
+        prompt="You are an AI named Sonic and you are in a conversation with a human. You can answer questions," \
                "provide information, and help with a wide variety of tasks.You are good at writing clean and standard " \
                "code.\n\n" + message_text,
         temperature=0.7,
@@ -83,12 +83,12 @@ def conversation_tracking(text_message, user_id):
     # Construct the full conversation history in the "human: bot: " format
     conversation_history = ""
     for i in range(min(len(user_messages), len(user_responses))):
-        conversation_history += f"human: {user_messages[i]}\ngenos: {user_responses[i]}\n"
+        conversation_history += f"human: {user_messages[i]}\nsonic: {user_responses[i]}\n"
 
     if conversation_history == "":
-        conversation_history = "human:{}\ngenos:".format(text_message)
+        conversation_history = "human:{}\nsonic:".format(text_message)
     else:
-        conversation_history += "human:{}\ngenos:".format(text_message)
+        conversation_history += "human:{}\nsonic:".format(text_message)
 
     # Generate response
     task = generate_response.apply_async(args=[conversation_history])
@@ -140,7 +140,7 @@ def handle_voice(message):
 
     # Send the question text back to the user
     # Send the transcribed text back to the user
-    new_replay_text = "Human: " + text + "\n\n" + "Genos: " + replay_text
+    new_replay_text = "Human: " + text + "\n\n" + "Sonic: " + replay_text
 
     bot.reply_to(message, new_replay_text)
 
