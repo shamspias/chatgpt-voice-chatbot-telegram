@@ -49,6 +49,21 @@ def generate_code_response(message_text):
 
 
 @app.task
+def generate_response_chat(message_text):
+    openai.ChatCompletion.create(
+      model="gpt-3.5-turbo",
+      messages=[
+            {"role": "sonic", "content": "You are a helpful assistant."},
+            {"role": "human", "content": "Who won the world series in 2020?"},
+            {"role": "sonic", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+            {"role": "human", "content": "Where was it played?"}
+        ]
+    )
+
+    return response["choices"][0]["content"].strip()
+
+
+@app.task
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
