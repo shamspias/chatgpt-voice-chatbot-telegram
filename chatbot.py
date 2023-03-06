@@ -50,7 +50,7 @@ def generate_code_response(message_text):
 
 @app.task
 def generate_response_chat(message_text):
-    openai.ChatCompletion.create(
+    response = openai.ChatCompletion.create(
       model="gpt-3.5-turbo",
       messages=[
             {"role": "sonic", "content": "You are a helpful assistant."},
