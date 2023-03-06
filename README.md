@@ -6,16 +6,17 @@ ChatGPT Voice Chatbot Telegram is a Python and Flask-based GitHub repository tha
 ## Features
 - Conversational AI chatbot with voice-to-text and text-to-voice support.
 - Utilizes OpenAI's GPT-3.5 Turbo model for generating text.
-- Stores the last 10 conversations and provides a /clear command to clear them.
+- Stores the last 10 conversations and provides a `/clear` command to clear them.
 - Uses Celery for task scheduling and asynchronous processing.
 - Integration with Telegram for seamless messaging.
-- Provides a /start or /help command to display a list of available commands.
-- Use of google TTS and speech to text and whisper can choice between them.
-- Use lasted GPT cost efficent model name `gpt-3.5-turbo`
-- ChatML to more efficent the prompt.
-- Genarate image as well
+- Provides a `/start` or `/help` command to display a list of available commands.
+- Use of google TTS and speech to text and whisper can choose between them.
+- Use lasted GPT cost efficient model name `gpt-3.5-turbo`
+- ChatML to more efficient the prompt.
+- Generate image as well
 - See old conversation by using `/session`
-- Genarate Image from Replicate OpenJourney
+- Generate Image from Replicate OpenJourney
+- `/image` to generate image with OpenJourney `/create` to use DALE-E-2
 
 ## Requirements
 
@@ -24,8 +25,6 @@ ChatGPT Voice Chatbot Telegram is a Python and Flask-based GitHub repository tha
 - OpenAI API Key
 - Telegram Bot Token
 - ffmpeg
-
-
 
 
 ## Deployment
