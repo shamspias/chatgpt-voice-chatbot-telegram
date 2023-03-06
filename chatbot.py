@@ -36,7 +36,7 @@ def generate_image(prompt, number=1):
 @app.task
 def generate_code_response(message_text):
     response = openai.Completion.create(
-        model="code-davinci-002",
+        model="code-davinci-003",
         prompt=message_text,
         temperature=0,
         max_tokens=256,
