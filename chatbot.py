@@ -1,4 +1,7 @@
 import os
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+import replicate
 import openai
 from dotenv import load_dotenv
 import telebot
@@ -18,8 +21,74 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
+model = replicate.models.get("prompthero/openjourney")
+version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+
 # Store the last 10 conversations for each user
 conversations = {}
+
+
+def image_watermark(img_response):
+    """
+    :param img_response: image url
+    :return: Byte image
+    """
+    img = Image.open(BytesIO(img_response.content))
+
+    # Add the watermark to the image
+    draw = ImageDraw.Draw(img)
+    watermark_text = "sonic"
+    font = ImageFont.truetype("anime.ttf", 20)
+    # text_size = draw.textsize(watermark_text, font=font)
+    # Positioning Text
+    x = 6
+    y = 6
+    # Add a shadow border to the text
+    for offset in range(1, 2):
+        draw.text((x - offset, y), watermark_text, font=font, fill=(88, 88, 88))
+        draw.text((x + offset, y), watermark_text, font=font, fill=(88, 88, 88))
+        draw.text((x, y + offset), watermark_text, font=font, fill=(88, 88, 88))
+        draw.text((x, y - offset), watermark_text, font=font, fill=(88, 88, 88))
+    # Applying text on image sonic draw object
+    draw.text((x, y), watermark_text, font=font, fill=(255, 255, 255))
+
+    # Upload the watermarked image to OpenAI and get the URL
+    img_bytes = BytesIO()
+    img.save(img_bytes, format="JPEG")
+    img_bytes = img_bytes.getvalue()
+    return img_bytes
+
+
+@app.task
+def generate_image_replicate(prompt):
+    inputs = {
+        # Input prompt
+        'prompt': "mdjrny-v4 style" + prompt + "4k resolution",
+
+        # Width of output image. Maximum size is 1024x768 or 768x1024 because
+        # of memory limits
+        'width': 512,
+
+        # Height of output image. Maximum size is 1024x768 or 768x1024 because
+        # of memory limits
+        'height': 512,
+
+        # Number of images to output
+        'num_outputs': 1,
+
+        # Number of denoising steps
+        # Range: 1 to 500
+        'num_inference_steps': 50,
+
+        # Scale for classifier-free guidance
+        # Range: 1 to 20
+        'guidance_scale': 6,
+
+        # Random seed. Leave blank to randomize the seed
+        # 'seed': ...,
+    }
+    output = version.predict(**inputs)
+    return output[0]
 
 
 @app.task
@@ -49,27 +118,28 @@ def generate_code_response(message_text):
 
 
 @app.task
-def generate_response_chat(message_text):
+def generate_response_chat(message_list):
     response = openai.ChatCompletion.create(
-      model="gpt-3.5-turbo",
-      messages=[
-            {"role": "sonic", "content": "You are a helpful assistant."},
-            {"role": "human", "content": "Who won the world series in 2020?"},
-            {"role": "sonic", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-            {"role": "human", "content": "Where was it played?"}
-        ]
+        model="gpt-3.5-turbo",
+        messages=[
+                     {"role": "system",
+                      "content": "You are an AI named sonic and you are in a conversation with a human. You can answer "
+                                 "questions, provide information, and help with a wide variety of tasks."},
+                     {"role": "user", "content": "Who are you?"},
+                     {"role": "assistant",
+                      "content": "I am the sonic powered by ChatGpt.Contact me sonic@deadlyai.com"},
+                 ] + message_list
     )
 
-    return response["choices"][0]["content"].strip()
+    return response["choices"][0]["message"]["content"].strip()
 
 
 @app.task
 def generate_response(message_text):
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt="You are an AI named Sonic and you are in a conversation with a human. You can answer questions," \
-               "provide information, and help with a wide variety of tasks.You are good at writing clean and standard " \
-               "code.\n\n" + message_text,
+        prompt="You are an AI named sonic and you are in a conversation with a human. You can answer questions, "
+               "provide information, and help with a wide variety of tasks.\n\n" + message_text,
         temperature=0.7,
         max_tokens=256,
         top_p=1,
@@ -80,9 +150,10 @@ def generate_response(message_text):
     return response["choices"][0]["text"].strip()
 
 
-def conversation_tracking(text_message, user_id):
+def conversation_tracking(text_message, user_id, old_model=True):
     """
-    Make remember all the coneversation
+    Make remember all the conversation
+    :param old_model: Open AI model
     :param user_id: telegram user id
     :param text_message: text message
     :return: str
@@ -95,19 +166,39 @@ def conversation_tracking(text_message, user_id):
     # Store the updated conversations and responses for this user
     conversations[user_id] = {'conversations': user_messages, 'responses': user_responses}
 
-    # Construct the full conversation history in the "human: bot: " format
-    conversation_history = ""
-    for i in range(min(len(user_messages), len(user_responses))):
-        conversation_history += f"human: {user_messages[i]}\nsonic: {user_responses[i]}\n"
+    if old_model:
+        # Construct the full conversation history in the "human: bot: " format
+        conversation_history = ""
+        for i in range(min(len(user_messages), len(user_responses))):
+            conversation_history += f"human: {user_messages[i]}\nsonic: {user_responses[i]}\n"
 
-    if conversation_history == "":
-        conversation_history = "human:{}\nsonic:".format(text_message)
+        if conversation_history == "":
+            conversation_history = "human:{}\nsonic:".format(text_message)
+        else:
+            conversation_history += "human:{}\nsonic:".format(text_message)
+
+        # Generate response
+        task = generate_response.apply_async(args=[conversation_history])
+        response = task.get()
     else:
-        conversation_history += "human:{}\nsonic:".format(text_message)
+        # Construct the full conversation history in the user:assistant, " format
+        conversation_history = []
 
-    # Generate response
-    task = generate_response.apply_async(args=[conversation_history])
-    response = task.get()
+        for i in range(min(len(user_messages), len(user_responses))):
+            conversation_history.append({
+                "role": "user", "content": user_messages[i]
+            })
+            conversation_history.append({
+                "role": "assistant", "content": user_responses[i]
+            })
+
+        # Add last prompt
+        conversation_history.append({
+            "role": "user", "content": text_message
+        })
+        # Generate response
+        task = generate_response_chat.apply_async(args=[conversation_history])
+        response = task.get()
 
     # Add the response to the user's responses
     user_responses.append(response)
@@ -121,8 +212,9 @@ def conversation_tracking(text_message, user_id):
 @bot.message_handler(commands=["start", "help"])
 def start(message):
     if message.text.startswith("/help"):
-        bot.reply_to(message, "/code - Helps you to write code, for example: \n/code # Create a python dictionary of 6 "
-                              "countries and their capitals\n/clear - Clears old conversations")
+        bot.reply_to(message, "/image to generate image animation\n/create generate image\n/clear - Clears old "
+                              "conversations\nsend text to get replay\nsend voice to do voice"
+                              "conversation")
     else:
         bot.reply_to(message, "Just start chatting to the AI or enter /help for other commands")
 
@@ -151,11 +243,11 @@ def handle_voice(message):
         text = r.recognize_google(audio_data)
 
     # Generate response
-    replay_text = conversation_tracking(text, user_id)
+    replay_text = conversation_tracking(text, user_id, True)
 
     # Send the question text back to the user
     # Send the transcribed text back to the user
-    new_replay_text = "Human: " + text + "\n\n" + "Sonic: " + replay_text
+    new_replay_text = "Human: " + text + "\n\n" + "sonic: " + replay_text
 
     bot.reply_to(message, new_replay_text)
 
@@ -179,16 +271,41 @@ def handle_voice(message):
     os.remove("voice_message_replay.ogg")
 
 
-@bot.message_handler(commands=["Code", "code"])
-def code_handler(message):
-    my_text = message.text.lower()
-    prompt = my_text.replace("/code", "").strip()
-    if prompt == "":
-        bot.reply_to(message, "Please enter code or a question after the /code command")
+@bot.message_handler(commands=["create", "image"])
+def handle_image(message):
+    space_markup = '                                                                                  '
+    image_footer = '[Website](https://deadlyai.com)'
+    caption = f"Powered by **[Sonic](https://t.me/sonicsaheb)" + space_markup + image_footer
+
+    if message.text.startswith("/image"):
+        prompt = message.text.replace("/image", "").strip()
+        task = generate_image_replicate.apply_async(args=[prompt])
+        image_url = task.get()
+
+        if image_url is not None:
+            img_response = requests.get(image_url)
+            img_bytes = image_watermark(img_response)
+
+            bot.send_photo(chat_id=message.chat.id, photo=img_bytes, reply_to_message_id=message.message_id,
+                           caption=caption, parse_mode='Markdown')
+        else:
+            bot.reply_to(message, "Could not generate image, try again later.")
     else:
-        task = generate_code_response.apply_async(args=[prompt])
-        response = task.get()
-        bot.reply_to(message, response)
+        number = message.text[7:10]
+        prompt = message.text.replace("/create", "").strip()
+        try:
+            numbers = int(number)
+        except Exception as e:
+            print(str(e))
+            numbers = 1
+        task = generate_image.apply_async(args=[prompt, numbers])
+        image_url = task.get()
+        for img in image_url:
+            if img['url'] is not None:
+                bot.send_photo(chat_id=message.chat.id, photo=img['url'], reply_to_message_id=message.message_id,
+                               caption=caption, parse_mode='Markdown')
+            else:
+                bot.reply_to(message, "Could not generate image, try again later.")
 
 
 @bot.message_handler(func=lambda message: True)
@@ -201,7 +318,7 @@ def echo_message(message):
         bot.reply_to(message, "Conversations and responses cleared!")
         return
 
-    response = conversation_tracking(message.text, user_id)
+    response = conversation_tracking(message.text, user_id, False)
 
     # Reply to message
     bot.reply_to(message, response)
