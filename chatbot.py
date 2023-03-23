@@ -103,21 +103,6 @@ def generate_image(prompt, number=1):
 
 
 @app.task
-def generate_code_response(message_text):
-    response = openai.Completion.create(
-        model="code-davinci-003",
-        prompt=message_text,
-        temperature=0,
-        max_tokens=256,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-
-    return response["choices"][0]["text"].strip()
-
-
-@app.task
 def generate_response_chat(message_list):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
