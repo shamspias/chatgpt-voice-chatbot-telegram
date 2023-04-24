@@ -24,6 +24,8 @@ bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 model = replicate.models.get("prompthero/openjourney")
 version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
 
+SYSTEM_PROMPT = "You are an AI named sonic and you are in a conversation with a human. You can answer questions, provide information, and help with a wide variety of tasks."
+
 # Store the last 10 conversations for each user
 conversations = {}
 
@@ -108,11 +110,7 @@ def generate_response_chat(message_list):
         model="gpt-3.5-turbo",
         messages=[
                      {"role": "system",
-                      "content": "You are an AI named sonic and you are in a conversation with a human. You can answer "
-                                 "questions, provide information, and help with a wide variety of tasks."},
-                     {"role": "user", "content": "Who are you?"},
-                     {"role": "assistant",
-                      "content": "I am the sonic powered by ChatGpt.Contact me sonic@deadlyai.com"},
+                      "content": SYSTEM_PROMPT},
                  ] + message_list
     )
 
