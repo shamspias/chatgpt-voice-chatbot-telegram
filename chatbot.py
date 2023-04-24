@@ -258,7 +258,7 @@ def handle_voice(message):
 def handle_image(message):
     space_markup = '                                                                                  '
     image_footer = '[Website](https://deadlyai.com)'
-    caption = f"Powered by **[Sonic](https://t.me/sonicsaheb)" + space_markup + image_footer
+    caption = f"Powered by **[Sonic](https://t.me/sleepomi)" + space_markup + image_footer
 
     if message.text.startswith("/image"):
         prompt = message.text.replace("/image", "").strip()
