@@ -63,7 +63,7 @@ def image_watermark(img_response):
 def generate_image_replicate(prompt):
     inputs = {
         # Input prompt
-        'prompt': "mdjrny-v4 style" + prompt + "4k resolution",
+        'prompt': "mdjrny-v4 style " + prompt + " 4k resolution",
 
         # Width of output image. Maximum size is 1024x768 or 768x1024 because
         # of memory limits
