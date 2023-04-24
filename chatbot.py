@@ -39,7 +39,7 @@ def image_watermark(img_response):
 
     # Add the watermark to the image
     draw = ImageDraw.Draw(img)
-    watermark_text = "sonic"
+    watermark_text = "DeadlyAI"
     font = ImageFont.truetype("anime.ttf", 20)
     # text_size = draw.textsize(watermark_text, font=font)
     # Positioning Text
