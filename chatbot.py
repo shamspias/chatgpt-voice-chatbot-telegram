@@ -24,7 +24,7 @@ bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 model = replicate.models.get("prompthero/openjourney")
 version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
 
-SYSTEM_PROMPT = "You are an AI named sonic and you are in a conversation with a human. You can answer questions, provide information, and help with a wide variety of tasks."
+SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
 
 # Store the last 10 conversations for each user
 conversations = {}
